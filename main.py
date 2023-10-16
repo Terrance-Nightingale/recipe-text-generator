@@ -1,7 +1,10 @@
-import requests
-# TODO Set up Sinch API for SMS messaging
+from text_send import TextSender
+
 # TODO Pull recipes from recipe API (or from ChatGPT)
 # TODO Compile recipes into SMS message to send to user
 # TODO Connect to Windows Task Manager to automate process every Friday at noon
 
-SINCH_API = "https://us.sms.api.sinch.com"
+body = "This is a separate text of the body system."
+
+texter = TextSender()
+texter.send_text(body=body)
