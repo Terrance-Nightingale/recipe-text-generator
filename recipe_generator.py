@@ -5,12 +5,15 @@ import requests
 class Cookbook:
 
     def __init__(self):
+        self.username = os.environ['USERNAME']
+        self.apikey = os.environ['APIKEY']
+        self.hash = os.environ['HASH']
+        self.recipes = []
+        self.shopping_list = []
+
         self.header = {
             "Content-Type": "application/json"
         }
-        self.username = os.environ['USERNAME']
-        self.hash = os.environ['HASH']
-        self.apikey = os.environ['APIKEY']
 
     def get_recipes(self):
         url = "https://api.spoonacular.com/mealplanner/generate"
@@ -22,34 +25,37 @@ class Cookbook:
         }
         response = requests.get(url=url, params=parameters, headers=self.header)
         data = response.json()
-        recipes = []
         for day in data['week']:
             for recipe in data['week'][f'{day}']['meals']:
                 recipe_to_add = {
+                    "ID": recipe['id'],
                     "Day": day.capitalize(),
                     "Name": recipe['title'],
                     "URL": recipe['sourceUrl']
                 }
-                recipes.append(recipe_to_add)
-        return recipes
+                self.recipes.append(recipe_to_add)
+        return self.recipes
 
     def get_shopping_list(self):
-        url = f"https://api.spoonacular.com/mealplanner/{self.username}/shopping-list"
+        url = "https://api.spoonacular.com/recipes/informationBulk"
+        ids = ""
+        for recipe in self.recipes:
+            id_to_ad = f"{recipe['ID']},"
+            ids += id_to_ad
         parameters = {
             "username": self.username,
             "hash": self.hash,
-            "apiKey": self.apikey
+            "apiKey": self.apikey,
+            "ids": ids
         }
         response = requests.get(url=url, params=parameters, headers=self.header)
         data = response.json()
-        print(data)
-        shopping_list = []
-        for aisle in data["aisles"]:
-            for item in aisle["items"]:
-                item_to_buy = {
-                    "Name": item["name"],
-                    "Amount": item["measures"]["original"]["amount"],
-                    "Unit": item["measures"]["original"]["unit"]
+        for recipe in data:
+            for ingredient in recipe['extendedIngredients']:
+                new_item = {
+                    "Ingredient": ingredient['originalName'],
+                    "Amount": ingredient['measures']['us']['amount'],
+                    "Unit": ingredient['measures']['us']['unitShort']
                 }
-                shopping_list.append(item_to_buy)
-        return shopping_list
+                self.shopping_list.append(new_item)
+        return self.shopping_list
