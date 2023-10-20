@@ -9,6 +9,9 @@ body = "This is a test."
 texter = TextSender()
 cookbook = Cookbook()
 
-recipes = cookbook.get_recipes()
-shopping_list = cookbook.get_shopping_list()
+cookbook.get_recipes()
+cookbook.get_shopping_list()
+
+cookbook.save_recipes()
+
 # texter.send_text(body=body)
