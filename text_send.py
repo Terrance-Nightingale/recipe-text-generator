@@ -5,20 +5,13 @@ import requests
 class TextSender:
 
     def __init__(self):
-
+        # Authentication variables. A Sinch account is needed to obtain these, as well as
+        # a desired phone number to send the notification to.
         self.servicePlanId = os.environ['servicePlanId']
         self.apiToken = os.environ['apiToken']
         self.sinchNumber = os.environ['sinchNumber']
         self.toNumber = os.environ['toNumber']
         self.url = "https://us.sms.api.sinch.com/xms/v1/" + self.servicePlanId + "/batches"
-
-        self.payload = {
-          "from": self.sinchNumber,
-          "to": [
-            self.toNumber
-          ],
-          "body": "This is a test"
-        }
 
         self.headers = {
           "Content-Type": "application/json",
@@ -26,7 +19,15 @@ class TextSender:
         }
 
     def send_text(self, body: str):
-        self.payload['body'] = body
+        payload = {
+          "from": self.sinchNumber,
+          "to": [
+            self.toNumber
+          ],
+          "body": body
+        }
 
-        response = requests.post(self.url, json=self.payload, headers=self.headers)
-        print(response.status_code)
+        # Sends the text.
+        response = requests.post(self.url, json=payload, headers=self.headers)
+        # Checks if the text successfully went through. Raises an error if not.
+        print(f"Errors in texting: {response.raise_for_status()}")
